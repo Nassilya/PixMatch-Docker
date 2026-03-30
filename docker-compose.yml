@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # ÉTAGE 1 : BDD (PostgreSQL)
+  db:
+    image: postgres:15
+    container_name: pixmatcher_db
+    restart: always
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=pixmatcher
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # ÉTAGE 2 : Le Backend (FastAPI + IA)
+  backend:
+    build: ./backend
+    container_name: pixmatcher_backend
+    restart: always
+    depends_on:
+      - db
+    # On partage le dossier ressources pour que le backend trouve les .npy
+    volumes:
+      - ./ressources:/app/ressources
+    # On expose le port 8000 pour que le frontend puisse lui parler
+    expose:
+      - "8000"
+
+  # ÉTAGE 3 : Le Frontend (Streamlit)
+  frontend:
+    build: ./frontend
+    container_name: pixmatcher_frontend
+    restart: always
+    ports:
+      - "8501:8501"
+    depends_on:
+      - backend
+    environment:
+      - BACKEND_URL=http://backend:8000
+    # On partage aussi ressources si Streamlit doit afficher des images locales
+    volumes:
+      - ./ressources:/app/ressources
+
+volumes:
+  postgres_data:
