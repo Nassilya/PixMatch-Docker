@@ -9,8 +9,7 @@ DIMENSION = 1280
 NB_IMAGES = 500
 TI_EMBEDDINGS_MOCK = np.random.random((NB_IMAGES, DIMENSION)).astype('float32')
 # On simule des codes de classes (ex: n01, n02...)
-TI_CATEGORIES_MOCK = np.array([f"n0123456{i%10}" for i in range(NB_IMAGES)])
-
+TI_CATEGORIES_MOCK = np.array([f"n0{(i % 6) + 1}" for i in range(NB_IMAGES)])
 # Création de l'index FAISS avec les données simulées
 ti_index = faiss.IndexFlatL2(DIMENSION)
 ti_index.add(TI_EMBEDDINGS_MOCK)
@@ -34,13 +33,14 @@ def ti_get_image_path(index_image):
     return f"https://picsum.photos/seed/{index_image}/400/400"
 
 def ti_get_label(index_image):
-    class_id = TI_CATEGORIES_MOCK[index_image]
+    # On récupère l'ID qui a été généré en haut (ex: "n01")
+    class_id = TI_CATEGORIES_MOCK[index_image] 
+    
     conn = get_db_connection()
     cur = conn.cursor()
     try:
-        # On simule un ID plus court pour coller à notre init_db (n01, n02...)
-        simple_id = f"n0{(index_image % 6) + 1}" 
-        cur.execute("SELECT label FROM wordnet WHERE class_id = %s", (simple_id,))
+        # On utilise DIRECTEMENT cet ID pour la requête SQL
+        cur.execute("SELECT label FROM wordnet WHERE class_id = %s", (class_id,))
         row = cur.fetchone()
         return row[0] if row else "Objet Mystère"
     except Exception as e:

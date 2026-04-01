@@ -58,10 +58,10 @@ def main():
                             img_url = res["url"]
                             with cols[i % 3]:
                                 if img_url.startswith("http"): # Cas Open Images (S3)
-                                    st.image(img_url, use_container_width=True)
+                                    st.image(img_url, width="stretch")
                                 else: # Cas Tiny ImageNet (Chemin local partagé via Volume)
                                     if os.path.exists(img_url):
-                                        st.image(img_url, use_container_width=True)
+                                        st.image(img_url, width="stretch")
                                     else:
                                         st.error("Local file not found")
                     else:

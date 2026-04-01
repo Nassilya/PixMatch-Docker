@@ -7,7 +7,7 @@ def init_db():
         cur.execute("CREATE TABLE IF NOT EXISTS wordnet (class_id TEXT PRIMARY KEY, label TEXT);")
         
         # On insère quelques faux labels pour la démo
-        labels = [("n01234560", "Chien"), ("n01234561", "Chat"), ("n01234562", "Voiture")]
+        labels = [("n01", "Chien"),("n02", "Chat"),("n03", "Voiture"),("n04", "Oiseau"),("n05", "Poisson"),("n06", "Avion")]
         for cid, lbl in labels:
             cur.execute("INSERT INTO wordnet (class_id, label) VALUES (%s, %s) ON CONFLICT DO NOTHING", (cid, lbl))
             
