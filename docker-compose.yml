@@ -47,8 +47,8 @@ services:
     build: ./frontend
     container_name: pixmatcher_frontend
     restart: always
-    ports:
-      - "8501:8501"
+    expose:
+      - "8501"
     depends_on:
       backend:
         condition: service_healthy
@@ -57,6 +57,7 @@ services:
       - ./ressources:/app/ressources
     networks:
       - frontend_network
+      - nginx_network
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8501/_stcore/health || exit 1"]
       interval: 15s
@@ -80,6 +81,21 @@ services:
     networks:
       - backend_network
 
+  # ÉTAGE 5 : Nginx (Reverse Proxy)
+  nginx:
+    image: nginx:alpine
+    container_name: pixmatcher_nginx
+    restart: always
+    ports:
+      - "8080:80"
+    depends_on:
+      frontend:
+        condition: service_healthy
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - nginx_network
+
 volumes:
   postgres_data:
   pgadmin_data:
@@ -87,3 +103,4 @@ volumes:
 networks:
   backend_network:
   frontend_network:
+  nginx_network:
