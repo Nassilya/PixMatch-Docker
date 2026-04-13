@@ -1,11 +1,7 @@
 fastapi
 uvicorn
 python-multipart
-torch
-torchvision
-openai-clip
 numpy
 faiss-cpu
-scipy
 pillow
 psycopg2-binary
