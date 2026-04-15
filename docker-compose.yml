@@ -28,6 +28,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      model: 
+        condition: service_healthy
     volumes:
       - ./ressources:/app/ressources
     expose:
@@ -41,7 +43,21 @@ services:
       timeout: 5s
       retries: 3
       start_period: 15s
-
+# ÉTAGE 2.5 : Le moteur d'IA 
+  model:
+    build: ./model
+    container_name: pixmatcher_model
+    restart: always
+    expose:
+      - "8001"
+    networks:
+      - backend_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8001/docs || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
   # ÉTAGE 3 : Le Frontend (Streamlit)
   frontend:
     build: ./frontend
